@@ -13,7 +13,7 @@ def levenshtein(s, t):
         return n + m
 
     x, y, a, b, c, d, g, h = 0, 0, 0, 0, 0, 0, 0, 0
-    p = [0 for x in range(n)]
+    p = [x+1 for x in range(n)]
 
     for x in range(0, m - 3, 4):
         e1 = ord(t[x])
@@ -35,21 +35,17 @@ def levenshtein(s, t):
 
             if (c < b or d < b):
                 b = (d + 1 if c > d else c + 1)
-
-            else:
-                if (e2 != f):
+            elif (e2 != f):
                     b += 1
 
             if (b < d or g < d):
                 d = (g + 1 if b > g else b + 1)
-            else:
-                if (e3 != f):
+            elif (e3 != f):
                     d += 1
 
             if (d < g or h < g):
                 g = (h + 1 if d > h else d + 1)
-            else:
-                if (e4 != f):
+            elif (e4 != f):
                     g += 1
 
             p[y] = h = g
@@ -78,8 +74,80 @@ def levenshtein(s, t):
 
     return h
 
-# Result is expected to be 1
-test1 = levenshtein("bat", "fat")
-test2 = levenshtein("bat", "fated")
-print(test1)
-print(test2)
+# Check if input char is one which
+def isAllowedChar(char):
+    val = ord(char)
+    # if char A-Z, a-z, or space then return true
+    if (val > 96 and val < 123) or val == 32:
+        return char
+    else:
+        return ""
+
+# input is a string which may have duplicate spaces in it
+def sanitizeInputString(input):
+    retVal = isAllowedChar(input[0])
+
+    for i in range(0,len(input) - 1):
+        if input[i] != ' ' or input[i+1] != ' ':
+            retVal += isAllowedChar(input[i + 1])
+    return retVal
+
+def runTests():
+    # Result is expected to be 1
+    test1 = levenshtein("bat", "fat")
+    test2 = levenshtein("bat", "fated")
+    test3 = levenshtein("sententcnes", "centner")
+    print(test1)
+    print(test2)
+    # Failing
+    print(test3)
+
+def getDistanceOfSentence(words, vocab, memo):
+    totalDistance = 0
+    distance = float("inf")
+    tempDistance = distance
+    tempWord = ""
+
+    for word in words:
+        # if word distance has already been calculated, use that
+        if word in memo:
+            totalDistance += memo[word]
+        else:
+            for vocabWord in vocab:
+                if distance == 0:
+                    break
+
+                # only calculate levenshtein distance if the word lengths are closer than the shortest distance seen so far
+                if abs(len(word) - len(vocabWord)) < distance:
+                    tempDistance = levenshtein(word, vocabWord)
+                    if (tempDistance < distance):
+                        distance = tempDistance
+                        tempWord = vocabWord
+
+            totalDistance += distance
+            memo[word] = distance
+            distance = float("inf")
+
+    return totalDistance
+
+
+runTests()
+
+# read in vocab and input
+vocabulary = open("vocabulary.txt", "r").read().lower().split('\n')
+testInput = open("example_input", "r").read().lower()
+
+# Sanitize and split the input into an array of words
+testInput = sanitizeInputString(testInput).split(" ")
+
+# memoize results just in case we happen to see the same mispelling more than once
+memo = {}
+
+print("expected: " + str(levenshtein("tihs", "this") +
+levenshtein("sententcnes", "sentence") +
+levenshtein("iss", "is") +
+levenshtein("nout", "not") +
+levenshtein("varrry", "very") +
+levenshtein("goud", "good")))
+
+print("result: " + str(getDistanceOfSentence(testInput, vocabulary, memo)))
