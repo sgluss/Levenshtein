@@ -16,7 +16,7 @@ def levenshtein(s, t):
     x, y, a, b, c, d, g, h = 0, 0, 0, 0, 0, 0, 0, 0
     p = [x+1 for x in range(n)]
 
-    for x in range(0, m - 3, 4):
+    while (x + 3) < m:
         e1 = ord(t[x])
         e2 = ord(t[x + 1])
         e3 = ord(t[x + 2])
@@ -26,6 +26,7 @@ def levenshtein(s, t):
         d = x + 2
         g = x + 3
         h = x + 4
+        x += 4
         for y in range(0, n):
             f = ord(s[y])
             a = p[y]
