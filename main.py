@@ -2,10 +2,12 @@ from levenshtein import *
 import math
 import time
 
-# Check if input char is one which
+TEST_INPUT_FILE = "187"
+
+# input is a single char
 def isAllowedChar(char):
     val = ord(char)
-    # if char A-Z, a-z, or space then return true
+    # if char a-z, or space then return true
     if (val > 96 and val < 123) or val == 32:
         return char
     else:
@@ -27,10 +29,10 @@ def runTests():
     test3 = levenshtein("sententcnes", "centner")
     print(test1)
     print(test2)
-    # Failing
     print(test3)
 
 # Input is a list of strings
+# Separate input into lists of words of a particular length, indexed by length
 def indexListByWordLength(list):
     retVal = {}
     for string in list:
@@ -40,6 +42,8 @@ def indexListByWordLength(list):
         retVal[length] += [string]
     return retVal
 
+# Iterator to set an index to the next closest position to a word length
+# EG for length 4, this function will iterate the index from 4 -> 5 -> 3 -> 6 -> 2 ...
 def iterateIndex(counter, length):
     # Set index to next nearest value to word length
     return length + math.ceil(counter / 2) if counter % 2 else length - math.ceil(counter / 2)
@@ -47,6 +51,7 @@ def iterateIndex(counter, length):
 def getDistanceOfWordFromVocab(word, vocab, memo):
     distance = len(word)
     tempDistance = distance
+    # handy for debug
     tempWord = ""
 
     length = len(word)
@@ -54,6 +59,7 @@ def getDistanceOfWordFromVocab(word, vocab, memo):
     counter = 0
     # only consider words which have a possibility of producing a smaller distance
     while (abs(index - length) < distance):
+        # If there are no words of this length, try the next index
         if index not in vocab:
             counter += 1
             index = iterateIndex(counter, length)
@@ -61,6 +67,7 @@ def getDistanceOfWordFromVocab(word, vocab, memo):
 
         for vocabWord in vocab[index]:
             if distance == 0:
+                # word match found
                 memo[word] = 0
                 return 0
 
@@ -73,6 +80,7 @@ def getDistanceOfWordFromVocab(word, vocab, memo):
         counter += 1
         index = iterateIndex(counter, length)
 
+    # all reasonable possibilities have been explored, memoize/return the best match
     memo[word] = distance
     return distance
 
@@ -98,15 +106,10 @@ def runOnInput(inputFile):
 
     vocabulary = indexListByWordLength(vocabulary)
 
-    # memoize results just in case we happen to see the same mispelling more than once
+    # memoize results just in case we happen to see the same word/mispelling more than once
     memo = {}
 
-    print("expected: " + str(levenshtein("tihs", "this") +
-    levenshtein("sententcnes", "sentence") +
-    levenshtein("iss", "is") +
-    levenshtein("nout", "not") +
-    levenshtein("varrry", "very") +
-    levenshtein("goud", "good")))
+    print("expected: " + "187")
 
     start = time.clock()
     print("result: " + str(getDistanceOfSentence(testInput, vocabulary, memo)))
@@ -115,4 +118,4 @@ def runOnInput(inputFile):
 
 # execute tests and input
 runTests()
-runOnInput("187")
+runOnInput(TEST_INPUT_FILE)
