@@ -3,6 +3,7 @@ import math
 import time
 
 TEST_INPUT_FILE = "187"
+VOCAB_FILE = "vocabulary.txt"
 
 # input is a single char
 def isAllowedChar(char):
@@ -96,15 +97,20 @@ def getDistanceOfSentence(words, vocab, memo):
 
     return totalDistance
 
-def runOnInput(inputFile):
+def getSanitizedInputAndVocab(inputFile, vocabFile):
     # read in vocab and input
-    vocabulary = open("vocabulary.txt", "r").read().lower().split('\n')
-    testInput = open(inputFile, "r").read().lower()
+    vocab = open(vocabFile, "r").read().lower().split('\n')
+    input = open(inputFile, "r").read().lower()
 
     # Sanitize and split the input into an array of words
-    testInput = sanitizeInputString(testInput).split(" ")
+    input = sanitizeInputString(input).split(" ")
 
-    vocabulary = indexListByWordLength(vocabulary)
+    vocab = indexListByWordLength(vocab)
+
+    return [input, vocab]
+
+def runOnInput(inputFile, vocabFile):
+    [testInput, vocabulary] = getSanitizedInputAndVocab(inputFile, vocabFile)
 
     # memoize results just in case we happen to see the same word/mispelling more than once
     memo = {}
@@ -116,6 +122,52 @@ def runOnInput(inputFile):
     end = time.clock()
     print("Time to complete: " + str(end - start) + " seconds")
 
+def runInputOnTrie(inputFile, vocabFile):
+    # read in vocab and input
+    vocab = open(vocabFile, "r").read().lower().split('\n')
+    input = open(inputFile, "r").read().lower()
+
+    # Sanitize and split the input into an array of words
+    input = sanitizeInputString(input).split(" ")
+
+    WordCount = 0
+
+    # read dictionary file into a trie
+    trie = TrieNode()
+    for word in vocab:
+        WordCount += 1
+        trie.insert(word)
+
+    print("Read %d words" % (WordCount))
+
+    start = time.time()
+
+    memo = {}
+    totalDistance = 0
+
+    for word in input:
+        # if word distance has already been calculated, use that
+        if word in memo:
+            totalDistance += memo[word]
+        else:
+            maxLen = 0
+            # algo does not work for maxLen vals under 2 (there is no vocab word with this length)
+            if len(word) < 2:
+                maxLen = 2
+            else:
+                maxLen = len(word)
+            result = search(word, [maxLen], trie)
+            memo[word] = result[0][1]
+            totalDistance += result[0][1]
+
+
+    end = time.time()
+
+    print("Search took %g s" % (end - start))
+
+    print("Total distance: " + str(totalDistance))
+
 # execute tests and input
-runTests()
-runOnInput(TEST_INPUT_FILE)
+#runTests()
+#runOnInput(TEST_INPUT_FILE, VOCAB_FILE)
+runInputOnTrie(TEST_INPUT_FILE, VOCAB_FILE)
