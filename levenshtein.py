@@ -1,5 +1,9 @@
 # Added by Samuel Gluss 5/9/2017
 
+# Trie based levenshtein search came from:
+# http://stevehanov.ca/blog/index.php?id=114
+# it has been modified and optimized for best-match searching
+
 # The Trie data structure keeps a set of words, organized with one node for
 # each letter. Each node has a branch for each letter that may follow it in the
 # set of words. Current node length is also added to enable short-circuiting
