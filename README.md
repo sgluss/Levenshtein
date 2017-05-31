@@ -1,5 +1,7 @@
 # Levenshtein
 
+Requires python 3.3 or higher
+
 To execute:
 
 ensure Python3.xx is on PATH

@@ -81,11 +81,12 @@ def runInputOnTrie(inputFile, vocabFile):
     shardedInput = [input[i:i + blockSize] for i in range(0, len(input), blockSize)]
 
     res = []
-    # Run multithreaded
+    # build arguments for multiple processes
     args = [(shardedInput[i], memo, totalDistance, trie, i,) for i in range(0,procCount)]
 
     preProc = time.time()
 
+    # distribute sharded tasks to pool processes, collate the results
     for result in pool.starmap(runShardedInputOnTrie, args):
         totalDistance += result
 
