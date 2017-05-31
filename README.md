@@ -5,8 +5,6 @@ To execute:
 ensure Python3.xx is on PATH
 
 run command:
-python main.py
+python main.py <insert input file here>
 
-to change input file:
-
-Adjust value of TEST_INPUT_FILE on line 5 of main.py
+if an input file is not specified, program will run with the default '187'
